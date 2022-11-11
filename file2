@@ -1,0 +1,17 @@
+total 264
+-rw-r--r--  1 hyuncpar  2022_seoul   1264 Nov 11 18:04 Makefile
+-rw-r--r--  1 hyuncpar  2022_seoul     40 Nov 10 15:56 file1
+-rw-r--r--  1 hyuncpar  2022_seoul      0 Nov 11 20:16 file2
+-rw-r--r--  1 hyuncpar  2022_seoul   2127 Nov 10 16:46 ft_split.c
+-rw-r--r--  1 hyuncpar  2022_seoul   6780 Nov 10 16:49 ft_split.o
+-rw-r--r--  1 hyuncpar  2022_seoul    912 Nov 10 17:24 ft_strjoin.c
+-rw-r--r--  1 hyuncpar  2022_seoul   1873 Nov 11 19:42 main.c
+-rw-r--r--  1 hyuncpar  2022_seoul  12040 Nov 11 19:42 main.o
+-rw-r--r--  1 hyuncpar  2022_seoul   1595 Nov 11 19:41 parse.c
+-rw-r--r--  1 hyuncpar  2022_seoul   6624 Nov 11 19:41 parse.o
+-rwxr-xr-x  1 hyuncpar  2022_seoul  56984 Nov 11 19:42 pipex
+-rw-r--r--  1 hyuncpar  2022_seoul   1413 Nov 11 17:58 pipex.h
+-rw-r--r--  1 hyuncpar  2022_seoul    954 Nov 10 16:11 print_error.c
+-rw-r--r--  1 hyuncpar  2022_seoul   2304 Nov 10 16:16 print_error.o
+-rw-r--r--  1 hyuncpar  2022_seoul   2008 Nov 10 17:17 utils.c
+-rw-r--r--  1 hyuncpar  2022_seoul   7064 Nov 10 17:18 utils.o
