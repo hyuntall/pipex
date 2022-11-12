@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 15:55:06 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/11 21:14:03 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/12 22:15:31 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ void	print_error(char *s);
 //parsing
 char	**get_env_path(char **envp);
 char	**get_cmds(int argc, char **argv);
+
+void	pipex(t_arg arg, int infile, int outfile);
 
 // utils
 size_t	ft_strlen(const char *s);
