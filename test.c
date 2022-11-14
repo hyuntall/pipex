@@ -1,52 +1,17 @@
 #include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <fcntl.h>
-
-int	main(int argc, char *argv[], char *envp[])
+int main(int argc, char **argv)
 {
-	int	pid;
-	int	fd1;
-	int	fd[2];
-	char	**grep;
-	char	**wc;
-	int	pipe1;
-	int	status;
+	int	fildes[2];
+	int	fd;
 
-	argv = 0;
-	argc = 0;
-	grep = (char **)malloc(sizeof(char *) * 3);
-	grep[0] = strdup("/usr/bin/grep");
-	grep[1] = strdup("a");
-	grep[2] = 0;
-	wc = (char **)malloc(sizeof(char *) * 3);
-	wc[0] = strdup("/usr/bin/wc");
-	wc[1] = strdup("-l");
-	wc[2] = 0;
-	fd1 = open("./infile", O_RDONLY);
-	pipe1 = pipe(fd);
-	dup2(fd1, 0);
-	close(fd1);
-	pid = fork();
-	if (pid > 0)
-	{
-		printf("parent\n");
-		//fd1 = open("./outfile", O_WRONLY);
-		dup2(fd[0], 0);
-		//dup2(fd1, 1);
-		//close(fd1);
-		close(fd[1]);
-		close(fd[0]); 
-		waitpid(pid, &status, 0);
-		execve("/usr/bin/wc", wc, envp);
-	}
-	else
-	{
-		printf("child\n");
-		dup2(fd[1], 1);
-		close(fd[0]);
-		close(fd[1]);
-		execve("/usr/bin/grep", grep, envp);
-	}
+	if (argc == 1)
+		return (0);
+	fd = open(argv[1], O_RDONLY);
+	dup2(fd, 1);
+	pipe(fildes);
+	close(fildes[0]);
+	dup2(fildes[1], 1);
+	execl("/bin/cat", "/bin/cat", NULL);
+	return (1);
 }

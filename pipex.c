@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/12 21:14:55 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/12 22:20:30 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/14 21:03:03 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ int	find_cmd(char *cmd, char **path)
 	char	*abs_path;
 
 	i = -1;
+	if (!access(cmd, X_OK))
+		return (-2);
 	while (path[++i])
 	{
 		abs_path = ft_strjoin(path[i], cmd);
@@ -37,15 +39,66 @@ void	free_cmd(char **cmd)
 		free(*cmd++);
 }
 
+void	p_process(t_arg arg, int pid, int *fd)
+{
+	int		state;
+	char	**cmd;
+	char	*tmp;
+	int		i;
+
+	dup2(fd[0], 0);
+	dup2(arg.outfile, 1);
+	close(fd[1]);
+	close(fd[0]);
+	close(arg.outfile);
+	waitpid(pid, &state, WNOWAIT);
+	cmd = ft_split(*arg.cmd, ' ');
+	i = find_cmd(cmd[0], arg.path);
+	if (i >= 0)
+	{
+		tmp = cmd[0];
+		cmd[0] = ft_strjoin(arg.path[i], cmd[0]);
+		free(tmp);
+		execve(cmd[0], cmd, arg.envp);
+	}
+	else if (i == -2)
+		execve(cmd[0], cmd, arg.envp);
+	else
+		print_error(cmd[0], 127);
+	free_cmd(cmd);
+}
+
+void	c_process(t_arg arg, int pid, int *fd)
+{
+	int		state;
+	char	**cmd;
+	char	*tmp;
+	int		i;
+
+	cmd = ft_split(*arg.cmd, ' ');
+	i = find_cmd(cmd[0], arg.path);
+	dup2(fd[1], 1);
+	close(fd[0]);
+	close(fd[1]);
+	if (i >= 0)
+	{
+		tmp = cmd[0];
+		cmd[0] = ft_strjoin(arg.path[i], cmd[0]);
+		free(tmp);
+		execve(cmd[0], cmd, arg.envp);
+	}
+	else if (i == -2)
+		execve(cmd[0], cmd, arg.envp);
+	else
+		print_error(cmd[0], 127);
+	free_cmd(cmd);
+}
+
 void	pipex(t_arg arg, int infile, int outfile)
 {
-	char	**cmd;
-	int		i;
-	char	*temp;
 	int		fd[2];
 	int		pipes;
 	int		pid;
-	int		status;
 
 	if (!*arg.cmd)
 		return ;
@@ -56,41 +109,8 @@ void	pipex(t_arg arg, int infile, int outfile)
 	if (pid > 0)
 	{
 		arg.cmd++;
-		dup2(fd[0], 0);
-		dup2(outfile, 1);
-		close(fd[1]);
-		close(fd[0]);
-		close(outfile);
-		waitpid(pid, &status, 0);
-		cmd = ft_split(*arg.cmd, ' ');
-		i = find_cmd(cmd[0], arg.path);
-		if (i >= 0)
-		{
-			temp = cmd[0];
-			cmd[0] = ft_strjoin(arg.path[i], cmd[0]);
-			free(temp);
-			execve(cmd[0], cmd, NULL);
-		}
-		else
-			exit(1);
-		free_cmd(cmd);
+		p_process(arg, pid, fd);
 	}
 	else
-	{
-		cmd = ft_split(*arg.cmd, ' ');
-		i = find_cmd(cmd[0], arg.path);
-		if (i >= 0)
-		{
-			dup2(fd[1], 1);
-			close(fd[0]);
-			close(fd[1]);
-			temp = cmd[0];
-			cmd[0] = ft_strjoin(arg.path[i], cmd[0]);
-			free(temp);
-			execve(cmd[0], cmd, NULL);
-		}
-		else
-			exit(1);
-		free_cmd(cmd);
-	}
+		c_process(arg, pid, fd);
 }

@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/11 17:57:06 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/11 21:19:54 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/14 20:02:35 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,19 @@ void	free_cmds(char **cmds)
 	free(cmds);
 }
 
+char	*insert_slash(char *cmd)
+{
+	char	*tmp;
+
+	if (cmd[0] != '/')
+	{
+		tmp = cmd;
+		cmd = ft_strjoin("/", cmd);
+		free(tmp);
+	}
+	return (cmd);
+}
+
 char	**get_cmds(int argc, char **argv)
 {
 	char	**cmds;
@@ -44,14 +57,14 @@ char	**get_cmds(int argc, char **argv)
 		return (0);
 	while (++i + 2 < argc - 1)
 	{
-		j = 1;
-		cmds[i] = (char *)malloc(sizeof(char) * (ft_strlen(argv[i + 2]) + 2));
+		j = 0;
+		cmds[i] = (char *)malloc(sizeof(char) * (ft_strlen(argv[i + 2]) + 1));
 		if (!cmds[i])
 			return (0);
-		cmds[i][0] = '/';
 		while (*argv[i + 2])
 			cmds[i][j++] = *argv[i + 2]++;
 		cmds[i][j] = 0;
+		cmds[i] = insert_slash(cmds[i]);
 	}
 	cmds[i] = 0;
 	return (cmds);
