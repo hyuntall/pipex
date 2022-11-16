@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/12 21:14:55 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/14 21:03:03 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/16 20:25:33 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ int	find_cmd(char *cmd, char **path)
 	i = -1;
 	if (!access(cmd, X_OK))
 		return (-2);
+	cmd = insert_slash(cmd);
 	while (path[++i])
 	{
 		abs_path = ft_strjoin(path[i], cmd);
@@ -39,10 +40,9 @@ void	free_cmd(char **cmd)
 		free(*cmd++);
 }
 
-void	p_process(t_arg arg, int pid, int *fd)
+void	p_process(t_arg arg, int pid, int *fd, char **cmd)
 {
 	int		state;
-	char	**cmd;
 	char	*tmp;
 	int		i;
 
@@ -52,46 +52,58 @@ void	p_process(t_arg arg, int pid, int *fd)
 	close(fd[0]);
 	close(arg.outfile);
 	waitpid(pid, &state, WNOWAIT);
-	cmd = ft_split(*arg.cmd, ' ');
-	i = find_cmd(cmd[0], arg.path);
-	if (i >= 0)
-	{
-		tmp = cmd[0];
-		cmd[0] = ft_strjoin(arg.path[i], cmd[0]);
-		free(tmp);
-		execve(cmd[0], cmd, arg.envp);
-	}
-	else if (i == -2)
-		execve(cmd[0], cmd, arg.envp);
-	else
-		print_error(cmd[0], 127);
-	free_cmd(cmd);
+	if (access(cmd[0], X_OK) < 0)
+		print_error(cmd[0] + 1, 127);
+	execve(cmd[0], cmd, arg.envp);
 }
 
-void	c_process(t_arg arg, int pid, int *fd)
+void	c_process(t_arg arg, int pid, int *fd, char **cmd)
 {
 	int		state;
-	char	**cmd;
 	char	*tmp;
 	int		i;
 
-	cmd = ft_split(*arg.cmd, ' ');
-	i = find_cmd(cmd[0], arg.path);
 	dup2(fd[1], 1);
 	close(fd[0]);
 	close(fd[1]);
-	if (i >= 0)
+	if (access(cmd[0], X_OK) < 0)
+		print_error(cmd[0] + 1, 127);
+	execve(cmd[0], cmd, arg.envp);
+}
+
+void	recurs_pipe(t_arg arg, int state, t_cmds cmds, int *fd)
+{
+	printf("%d %d %s\n",  cmds.num, state, cmds.cmd[0]);
+	if (cmds.num == 0)
 	{
-		tmp = cmd[0];
-		cmd[0] = ft_strjoin(arg.path[i], cmd[0]);
-		free(tmp);
-		execve(cmd[0], cmd, arg.envp);
+		printf("first!\n");
+		dup2(arg.infile, 0);
+		close(arg.infile);
+		dup2(fd[1], 1);
+		close(fd[0]);
+		close(fd[1]);
 	}
-	else if (i == -2)
-		execve(cmd[0], cmd, arg.envp);
+	else if (!cmds.next)
+	{
+		printf("last!\n");
+		dup2(fd[0], 0);
+		dup2(arg.outfile, 1);
+		close(fd[1]);
+		close(fd[0]);
+		close(arg.outfile);
+	}
 	else
-		print_error(cmd[0], 127);
-	free_cmd(cmd);
+	{
+		printf("middle\n");
+		dup2(fd[0], 0);
+		close(fd[0]);
+		dup2(fd[1], 1);
+		close(fd[1]);
+	}
+	//close(fd[1 - state]);
+	if (access(cmds.cmd[0], X_OK) < 0)
+		print_error(cmds.cmd[0] + 1, 127);
+	execve(cmds.cmd[0], cmds.cmd, arg.envp);
 }
 
 void	pipex(t_arg arg, int infile, int outfile)
@@ -99,18 +111,34 @@ void	pipex(t_arg arg, int infile, int outfile)
 	int		fd[2];
 	int		pipes;
 	int		pid;
+	t_cmds	*cmds;
+	int		i;
+	int		state;
 
-	if (!*arg.cmd)
-		return ;
+	i = 1;
+	cmds = arg.cmd_head;
 	pipes = pipe(fd);
-	dup2(infile, 0);
-	close(infile);
+	//dup2(infile, 0);
+	//close(infile);
+	while (cmds)
+	{
+		pid = fork();
+		if (!pid)
+		{
+			recurs_pipe(arg, i % 2, *cmds, fd);
+		}
+		waitpid(pid, &state, WNOWAIT);
+		cmds = cmds->next;
+		i++;
+	}
+	/*
 	pid = fork();
 	if (pid > 0)
 	{
-		arg.cmd++;
-		p_process(arg, pid, fd);
+		cmds = cmds->next;
+		p_process(arg, pid, fd, cmds->cmd);
 	}
 	else
-		c_process(arg, pid, fd);
+		c_process(arg, pid, fd, cmds->cmd);
+		*/
 }

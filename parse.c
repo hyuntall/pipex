@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/11 17:57:06 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/14 20:02:35 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/16 19:16:17 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,27 +45,38 @@ char	*insert_slash(char *cmd)
 	return (cmd);
 }
 
-char	**get_cmds(int argc, char **argv)
+char	*check_cmd(char *cmd, char **path)
 {
-	char	**cmds;
 	int		i;
-	int		j;
+	char	*abs_path;
 
 	i = -1;
-	cmds = (char **)malloc(sizeof(char *) * (argc - 1));
-	if (!cmds)
-		return (0);
+	if (!access(cmd, X_OK))
+		return (cmd);
+	cmd = insert_slash(cmd);
+	while (path[++i])
+	{
+		abs_path = ft_strjoin(path[i], cmd);
+		if (!access(abs_path, X_OK))
+			return (abs_path);
+		free(abs_path);
+	}
+	//print_error(cmd + 1, 127);
+	return (cmd);
+}
+
+void	parse_cmds(t_arg *arg, int argc, char **argv)
+{
+	char	**cmd;
+	int		i;
+	int		check;
+	t_cmds	*cmds;
+
+	i = -1;
 	while (++i + 2 < argc - 1)
 	{
-		j = 0;
-		cmds[i] = (char *)malloc(sizeof(char) * (ft_strlen(argv[i + 2]) + 1));
-		if (!cmds[i])
-			return (0);
-		while (*argv[i + 2])
-			cmds[i][j++] = *argv[i + 2]++;
-		cmds[i][j] = 0;
-		cmds[i] = insert_slash(cmds[i]);
+		cmd = ft_split(argv[i + 2], ' ');
+		cmd[0] = check_cmd(cmd[0], arg->path);
+		cmd_insert(arg, cmd);
 	}
-	cmds[i] = 0;
-	return (cmds);
 }
