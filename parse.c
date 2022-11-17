@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/11 17:57:06 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/16 19:16:17 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/17 18:43:50 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ char	*check_cmd(char *cmd, char **path)
 			return (abs_path);
 		free(abs_path);
 	}
-	//print_error(cmd + 1, 127);
+	print_error(cmd + 1, 127);
 	return (cmd);
 }
 

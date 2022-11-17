@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/12 21:14:55 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/16 20:25:33 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/17 20:03:02 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,105 +40,49 @@ void	free_cmd(char **cmd)
 		free(*cmd++);
 }
 
-void	p_process(t_arg arg, int pid, int *fd, char **cmd)
+void	repipex(t_arg arg, char **cmd, int in)
 {
-	int		state;
-	char	*tmp;
-	int		i;
+	pid_t	pid;
+	int		fd[2];
 
-	dup2(fd[0], 0);
-	dup2(arg.outfile, 1);
-	close(fd[1]);
-	close(fd[0]);
-	close(arg.outfile);
-	waitpid(pid, &state, WNOWAIT);
-	if (access(cmd[0], X_OK) < 0)
-		print_error(cmd[0] + 1, 127);
-	execve(cmd[0], cmd, arg.envp);
-}
-
-void	c_process(t_arg arg, int pid, int *fd, char **cmd)
-{
-	int		state;
-	char	*tmp;
-	int		i;
-
-	dup2(fd[1], 1);
-	close(fd[0]);
-	close(fd[1]);
-	if (access(cmd[0], X_OK) < 0)
-		print_error(cmd[0] + 1, 127);
-	execve(cmd[0], cmd, arg.envp);
-}
-
-void	recurs_pipe(t_arg arg, int state, t_cmds cmds, int *fd)
-{
-	printf("%d %d %s\n",  cmds.num, state, cmds.cmd[0]);
-	if (cmds.num == 0)
+	pipe(fd);
+	pid = fork();
+	if (pid)
 	{
-		printf("first!\n");
-		dup2(arg.infile, 0);
-		close(arg.infile);
-		dup2(fd[1], 1);
-		close(fd[0]);
 		close(fd[1]);
-	}
-	else if (!cmds.next)
-	{
-		printf("last!\n");
 		dup2(fd[0], 0);
-		dup2(arg.outfile, 1);
-		close(fd[1]);
-		close(fd[0]);
-		close(arg.outfile);
+		waitpid(pid, NULL, WNOHANG);
 	}
 	else
 	{
-		printf("middle\n");
-		dup2(fd[0], 0);
 		close(fd[0]);
 		dup2(fd[1], 1);
-		close(fd[1]);
+		if (!in)
+			exit(1);
+		else
+			execve(cmd[0], cmd, arg.envp);
+		exit(127);
 	}
-	//close(fd[1 - state]);
-	if (access(cmds.cmd[0], X_OK) < 0)
-		print_error(cmds.cmd[0] + 1, 127);
-	execve(cmds.cmd[0], cmds.cmd, arg.envp);
 }
 
-void	pipex(t_arg arg, int infile, int outfile)
+void	pipex(t_arg arg)
 {
 	int		fd[2];
 	int		pipes;
 	int		pid;
 	t_cmds	*cmds;
 	int		i;
-	int		state;
 
 	i = 1;
 	cmds = arg.cmd_head;
-	pipes = pipe(fd);
-	//dup2(infile, 0);
-	//close(infile);
-	while (cmds)
+	dup2(arg.infile, 0);
+	dup2(arg.outfile, 1);
+	repipex(arg, cmds->cmd, arg.infile);
+	cmds = cmds->next;
+	while (cmds->next)
 	{
-		pid = fork();
-		if (!pid)
-		{
-			recurs_pipe(arg, i % 2, *cmds, fd);
-		}
-		waitpid(pid, &state, WNOWAIT);
+		repipex(arg, cmds->cmd, 1);
 		cmds = cmds->next;
-		i++;
 	}
-	/*
-	pid = fork();
-	if (pid > 0)
-	{
-		cmds = cmds->next;
-		p_process(arg, pid, fd, cmds->cmd);
-	}
-	else
-		c_process(arg, pid, fd, cmds->cmd);
-		*/
+	execve(cmds->cmd[0], cmds->cmd, arg.envp);
 }
