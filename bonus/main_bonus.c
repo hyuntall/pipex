@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   main_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 15:52:23 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/21 22:14:52 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/21 22:36:09 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "pipex_bonus.h"
 
 void	open_file(t_arg *arg, char *filename, int o)
 {
@@ -34,14 +34,17 @@ int	main(int argc, char **argv, char **envp)
 	int		files[2];
 
 	arg.status_code = 0;
-	if (argc != 5)
-	{
-		print_error(&arg, "Not 5 ARG!", 1);
-		exit(1);
-	}
 	arg.infile_name = argv[1];
+	if (!ft_strncmp(arg.infile_name, "here_doc", 8))
+	{
+		arg.limit = argv[2];
+		argv++;
+		argc--;
+		arg.here_doc = 1;
+	}
+	else
+		open_file(&arg, arg.infile_name, 1);
 	arg.outfile_name = argv[argc - 1];
-	open_file(&arg, arg.infile_name, 1);
 	open_file(&arg, arg.outfile_name, 0);
 	arg.cmd_head = 0;
 	arg.envp = envp;
