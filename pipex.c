@@ -6,32 +6,26 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/12 21:14:55 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/17 20:03:02 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/21 19:58:16 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-int	find_cmd(char *cmd, char **path)
+void	open_file(t_arg *arg, char *filename, int o)
 {
-	int		i;
-	char	*abs_path;
-
-	i = -1;
-	if (!access(cmd, X_OK))
-		return (-2);
-	cmd = insert_slash(cmd);
-	while (path[++i])
+	if (o)
 	{
-		abs_path = ft_strjoin(path[i], cmd);
-		if (!access(abs_path, X_OK))
-		{
-			free(abs_path);
-			return (i);
-		}
-		free(abs_path);
+		arg->infile = open(filename, O_RDONLY, 0777);
+		if (arg->infile < 0)
+			print_error(arg, filename, 1);
 	}
-	return (-1);
+	else
+	{
+		arg->outfile = open(filename, O_RDWR | O_CREAT | O_TRUNC, 0777);
+		if (arg->outfile < 0)
+			print_error(arg, filename, 2);
+	}
 }
 
 void	free_cmd(char **cmd)
@@ -40,7 +34,7 @@ void	free_cmd(char **cmd)
 		free(*cmd++);
 }
 
-void	repipex(t_arg arg, char **cmd, int in)
+void	repipex(t_arg arg, t_cmds cmds, int in)
 {
 	pid_t	pid;
 	int		fd[2];
@@ -49,19 +43,27 @@ void	repipex(t_arg arg, char **cmd, int in)
 	pid = fork();
 	if (pid)
 	{
-		close(fd[1]);
 		dup2(fd[0], 0);
+		close(fd[1]);
+		close(fd[0]);
 		waitpid(pid, NULL, WNOHANG);
 	}
 	else
 	{
-		close(fd[0]);
-		dup2(fd[1], 1);
-		if (!in)
+		if (access(cmds.cmd[0], X_OK))
+			exit(127);
+		if (arg.infile >= 0 && !cmds.num)
+			dup2(arg.infile, 0);
+		else if (arg.infile < 0 && !cmds.num)
 			exit(1);
+		if (!cmds.next && arg.outfile > 0)
+			dup2(arg.outfile, 1);
 		else
-			execve(cmd[0], cmd, arg.envp);
-		exit(127);
+			dup2(fd[1], 1);
+		close(fd[0]);
+		close(fd[1]);
+		arg.status_code = 0;
+		execve(cmds.cmd[0], cmds.cmd, arg.envp);
 	}
 }
 
@@ -69,20 +71,24 @@ void	pipex(t_arg arg)
 {
 	int		fd[2];
 	int		pipes;
-	int		pid;
+	pid_t	pid;
 	t_cmds	*cmds;
 	int		i;
 
 	i = 1;
 	cmds = arg.cmd_head;
-	dup2(arg.infile, 0);
-	dup2(arg.outfile, 1);
-	repipex(arg, cmds->cmd, arg.infile);
-	cmds = cmds->next;
-	while (cmds->next)
+	open_file(&arg, arg.infile_name, 1);
+	open_file(&arg, arg.outfile_name, 0);
+	pid = fork();
+	while (wait(&pid) != -1)
 	{
-		repipex(arg, cmds->cmd, 1);
-		cmds = cmds->next;
+		while (!pid && cmds)
+		{
+			repipex(arg, *cmds, 1);
+			cmds = cmds->next;
+		}
 	}
-	execve(cmds->cmd[0], cmds->cmd, arg.envp);
+	close(arg.infile);
+	close(arg.outfile);
+	//printf("status code: %d\n", arg.status_code);
 }

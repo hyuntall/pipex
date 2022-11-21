@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/16 17:51:14 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/16 20:04:59 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/21 18:38:20 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void	cmd_insert(t_arg *arg, char **value)
 		arg->cmd_tail->num = 0;
 	}
 	else
-	{
+	{	
 		arg->cmd_tail->next = new_cmd;
 		arg->cmd_tail->next->num = arg->cmd_tail->num + 1;
 		arg->cmd_tail = arg->cmd_tail->next;

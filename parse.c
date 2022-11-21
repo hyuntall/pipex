@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/11 17:57:06 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/17 18:43:50 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/21 20:00:05 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ char	*insert_slash(char *cmd)
 	return (cmd);
 }
 
-char	*check_cmd(char *cmd, char **path)
+char	*check_cmd(t_arg *arg, char *cmd, char **path)
 {
 	int		i;
 	char	*abs_path;
@@ -58,10 +58,13 @@ char	*check_cmd(char *cmd, char **path)
 	{
 		abs_path = ft_strjoin(path[i], cmd);
 		if (!access(abs_path, X_OK))
+		{
+			arg->status_code = 0;
 			return (abs_path);
+		}
 		free(abs_path);
 	}
-	print_error(cmd + 1, 127);
+	print_error(arg, cmd + 1, 127);
 	return (cmd);
 }
 
@@ -76,7 +79,7 @@ void	parse_cmds(t_arg *arg, int argc, char **argv)
 	while (++i + 2 < argc - 1)
 	{
 		cmd = ft_split(argv[i + 2], ' ');
-		cmd[0] = check_cmd(cmd[0], arg->path);
+		cmd[0] = check_cmd(arg, cmd[0], arg->path);
 		cmd_insert(arg, cmd);
 	}
 }

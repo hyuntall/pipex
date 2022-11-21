@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 15:55:06 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/17 17:22:18 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/21 19:52:54 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,17 +25,20 @@ typedef struct s_cmds{
 }	t_cmds;
 
 typedef struct s_arg{
-	int		infile;
-	int		outfile;
-	char	**path;
-	char	**cmd;
-	char	**envp;
-	t_cmds	*cmd_head;
-	t_cmds	*cmd_tail;
+	char		*infile_name;
+	char		*outfile_name;
+	int			infile;
+	int			outfile;
+	char		**path;
+	char		**cmd;
+	char		**envp;
+	int			status_code;
+	t_cmds		*cmd_head;
+	t_cmds		*cmd_tail;
 }	t_arg;
 
 // handle error
-void	print_error(char *s, int code);
+void	print_error(t_arg *arg, char *s, int code);
 
 //parsing
 char	**get_env_path(char **envp);

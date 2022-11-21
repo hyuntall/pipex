@@ -2,9 +2,14 @@
 #include <fcntl.h>
 #include <stdio.h>
 
-int main()
+int	main()
 {
-	int a = access("./a.out", X_OK);
-	printf("?? %d \n", a);
-	return (1);
+	pid_t	pid;
+
+	pid = fork();
+	printf("pid: %d\n", pid);
+	usleep(1000);
+	pid	= fork();
+	printf("pid: %d\n", pid);
+	usleep(1);
 }
