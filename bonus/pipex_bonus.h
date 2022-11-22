@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 15:55:06 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/21 22:39:22 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/22 17:26:46 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,8 @@ void	cmd_insert(t_arg *arg, char **value);
 
 void	pipex(t_arg arg);
 char	*insert_slash(char *cmd);
+
+int		here_doc(t_arg arg);
 // utils
 size_t	ft_strlen(const char *s);
 int		ft_strncmp(const char *s1, const char *s2, size_t n);
@@ -58,4 +60,6 @@ char	*ft_strtrim(char const *s1, char const *set);
 char	*ft_strdup(const char *s1);
 char	*ft_strjoin(char const *s1, char const *s2);
 char	**ft_split(char const *s, char c);
+void	ft_putstr_fd(char *s, int fd);
+
 #endif

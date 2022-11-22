@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/12 21:14:55 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/21 23:06:56 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/22 17:33:06 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,26 +16,6 @@ void	free_cmd(char **cmd)
 {
 	while (*cmd)
 		free(*cmd++);
-}
-
-void	here_doc(t_arg arg, int *fd)
-{
-	char* line;
-	int i;
-
-	dup2(fd[1], 1);
-    line = get_next_line(0);			// 1
-    while (line && ft_strncmp(line, arg.limit, ft_strlen(arg.limit)))
-    {
-    	printf("Gnl %d line : %s", i++, line);	
-        free(line);
-    	line = get_next_line(0);
-    }
-    printf("\n");
-    free(line);
-	printf("sadda\n");
-	close(fd[1]);
-	close(fd[0]);
 }
 
 void	repipex(t_arg arg, t_cmds cmds, int in)
@@ -56,12 +36,7 @@ void	repipex(t_arg arg, t_cmds cmds, int in)
 	{
 		if (access(cmds.cmd[0], X_OK))
 			exit(127);
-		if (arg.here_doc == 1 && !cmds.num)
-		{
-			here_doc(arg, fd);
-			printf("asdsa\n");
-		}
-		else if (arg.infile >= 0 && !cmds.num)
+		if (arg.infile >= 0 && !cmds.num)
 			dup2(arg.infile, 0);
 		else if (arg.infile < 0 && !cmds.num)
 			exit(1);
@@ -96,4 +71,6 @@ void	pipex(t_arg arg)
 	}
 	close(arg.infile);
 	close(arg.outfile);
+	if (arg.here_doc)
+		unlink("temp");
 }

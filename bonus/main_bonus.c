@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 15:52:23 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/21 22:36:09 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/22 18:01:17 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ int	main(int argc, char **argv, char **envp)
 		argv++;
 		argc--;
 		arg.here_doc = 1;
+		arg.infile = here_doc(arg);
 	}
 	else
 		open_file(&arg, arg.infile_name, 1);
