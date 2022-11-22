@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 15:52:23 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/22 18:01:17 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/22 18:33:28 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,14 @@ int	main(int argc, char **argv, char **envp)
 	t_arg	arg;
 	int		files[2];
 
+	if (argc < 5)
+	{
+		write(2, "Not 5 ARG!\n", 11);
+		exit(1);
+	}
 	arg.status_code = 0;
 	arg.infile_name = argv[1];
-	if (!ft_strncmp(arg.infile_name, "here_doc", 8))
+	if (!ft_strcmp(arg.infile_name, "here_doc"))
 	{
 		arg.limit = argv[2];
 		argv++;
@@ -45,6 +50,11 @@ int	main(int argc, char **argv, char **envp)
 	}
 	else
 		open_file(&arg, arg.infile_name, 1);
+	if (argc < 5)
+	{
+		write(2, "Not 5 ARG!\n", 11);
+		exit(1);
+	}
 	arg.outfile_name = argv[argc - 1];
 	open_file(&arg, arg.outfile_name, 0);
 	arg.cmd_head = 0;

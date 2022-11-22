@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 16:41:01 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/22 17:14:07 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/22 18:26:04 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,20 @@ int	ft_strncmp(const char *s1, const char *s2, size_t n)
 	}
 	if (!str1[i] && i < n)
 		return (str1[i] - str2[i]);
+	return (0);
+}
+
+int	ft_strcmp(char *s1, char *s2)
+{
+	int	i;
+
+	i = 0;
+	while (s1[i] && s2[i])
+	{
+		if (s1[i] != s2[i])
+			return (s1[i] - s2[i]);
+		i++;
+	}
 	return (0);
 }
 
