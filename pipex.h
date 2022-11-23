@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 15:55:06 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/21 19:52:54 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/23 17:17:09 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void	parse_cmds(t_arg *arg, int argc, char **argv);
 
 void	cmd_insert(t_arg *arg, char **value);
 
-void	pipex(t_arg arg);
+void	pipex(t_arg *arg);
 char	*insert_slash(char *cmd);
 // utils
 size_t	ft_strlen(const char *s);

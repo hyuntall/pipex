@@ -6,23 +6,78 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/12 21:14:55 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/22 17:33:06 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/23 22:54:28 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-void	free_cmd(char **cmd)
+int	open_file(t_arg *arg, char *filename, int isinfile)
 {
-	while (*cmd)
-		free(*cmd++);
+	if ((isinfile && !access(filename, F_OK) && access(filename, R_OK)) || \
+	(!isinfile && !access(filename, F_OK) && access(filename, W_OK)))
+	{
+		arg->status_code = 1;
+		return (2);
+	}
+	if (isinfile)
+	{
+		arg->infile = open(filename, O_RDONLY, 0777);
+		if (arg->infile < 0)
+		{
+			arg->status_code = 1;
+			return (1);
+		}
+	}
+	else
+	{
+		arg->outfile = open(filename, O_RDWR | O_CREAT | O_TRUNC, 0777);
+		if (arg->outfile < 0)
+		{
+			arg->status_code = 1;
+			return (1);
+		}
+	}
+	return (0);
 }
 
-void	repipex(t_arg arg, t_cmds cmds, int in)
+void	process_child(t_arg *arg, t_cmds cmds, int *fd, int open_error)
+{
+	if (!cmds.num)
+	{
+		if (open_error)
+			print_error(arg, arg->infile_name, open_error);
+		dup2(arg->infile, 0);
+	}
+	if (!cmds.next)
+	{
+		if (open_error)
+			print_error(arg, arg->outfile_name, open_error);
+		dup2(arg->outfile, 1);
+	}
+	else
+		dup2(fd[1], 1);
+	close(fd[0]);
+	close(fd[1]);
+	execve(cmds.cmd[0], cmds.cmd, arg->envp);
+	print_error(arg, cmds.cmd[0], 127);
+}
+
+void	repipex(t_arg *arg, t_cmds cmds, int in)
 {
 	pid_t	pid;
 	int		fd[2];
+	int		is_opened;
+	int		status;
 
+	if (!cmds.num)
+		is_opened = open_file(arg, arg->infile_name, 1);
+	if (access(cmds.cmd[0], X_OK))
+		arg->status_code = 127;
+	else
+		arg->status_code = 0;
+	if (!cmds.next)
+		is_opened = open_file(arg, arg->outfile_name, 0);
 	pipe(fd);
 	pid = fork();
 	if (pid)
@@ -30,27 +85,13 @@ void	repipex(t_arg arg, t_cmds cmds, int in)
 		dup2(fd[0], 0);
 		close(fd[1]);
 		close(fd[0]);
-		waitpid(pid, NULL, WNOHANG);
+		waitpid(pid, &status, WNOHANG);
 	}
 	else
-	{
-		if (access(cmds.cmd[0], X_OK))
-			exit(127);
-		if (arg.infile >= 0 && !cmds.num)
-			dup2(arg.infile, 0);
-		else if (arg.infile < 0 && !cmds.num)
-			exit(1);
-		if (!cmds.next && arg.outfile > 0)
-			dup2(arg.outfile, 1);
-		else
-			dup2(fd[1], 1);
-		close(fd[0]);
-		close(fd[1]);
-		execve(cmds.cmd[0], cmds.cmd, arg.envp);
-	}
+		process_child(arg, cmds, fd, is_opened);
 }
 
-void	pipex(t_arg arg)
+void	pipex(t_arg *arg)
 {
 	int		fd[2];
 	int		pipes;
@@ -59,7 +100,7 @@ void	pipex(t_arg arg)
 	int		i;
 
 	i = 1;
-	cmds = arg.cmd_head;
+	cmds = arg->cmd_head;
 	pid = fork();
 	while (wait(&pid) != -1)
 	{
@@ -69,8 +110,8 @@ void	pipex(t_arg arg)
 			cmds = cmds->next;
 		}
 	}
-	close(arg.infile);
-	close(arg.outfile);
-	if (arg.here_doc)
-		unlink("temp");
+	if (!pid)
+		exit(0);
+	close(arg->infile);
+	close(arg->outfile);
 }

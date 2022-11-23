@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/11 17:57:06 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/21 22:31:26 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/23 20:49:01 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ char	*insert_slash(char *cmd)
 	{
 		tmp = cmd;
 		cmd = ft_strjoin("/", cmd);
-		free(tmp);
 	}
 	return (cmd);
 }
@@ -49,22 +48,27 @@ char	*check_cmd(t_arg *arg, char *cmd, char **path)
 {
 	int		i;
 	char	*abs_path;
+	char	*tmp;
 
 	i = -1;
 	if (!access(cmd, X_OK))
 		return (cmd);
-	cmd = insert_slash(cmd);
+	tmp = insert_slash(cmd);
 	while (path[++i])
 	{
-		abs_path = ft_strjoin(path[i], cmd);
+		abs_path = ft_strjoin(path[i], tmp);
 		if (!access(abs_path, X_OK))
 		{
 			arg->status_code = 0;
+			free(cmd);
+			free(tmp);
+			tmp = 0;
 			return (abs_path);
 		}
 		free(abs_path);
 	}
-	print_error(arg, cmd + 1, 127);
+	if (cmd[0] != '/')
+		free(tmp);
 	return (cmd);
 }
 
