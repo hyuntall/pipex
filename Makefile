@@ -6,14 +6,15 @@
 #    By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/10 16:12:59 by hyuncpar          #+#    #+#              #
-#    Updated: 2022/11/22 17:42:03 by hyuncpar         ###   ########.fr        #
+#    Updated: 2022/11/24 16:11:57 by hyuncpar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	=	pipex
-BNAME	=	pipex
+BNAME	=	pipex_bonus
 
-CC		=	cc -g -fsanitize=address
+CC		=	cc
+
 CFLAG	=	-Wall -Werror -Wextra
 RM		=	rm -f
 
@@ -39,7 +40,7 @@ $(NAME)	: $(OBJS)
 $(BNAME) : $(BOBJS)
 	$(CC) -o $(BNAME) $(BOBJS)
 
-all	: $(NAME)
+all	: $(NAME) $(BNAME)
 
 bonus : $(BNAME)
 

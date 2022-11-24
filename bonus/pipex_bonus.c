@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/12 21:14:55 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/23 22:54:28 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/24 15:54:56 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,9 +102,9 @@ void	pipex(t_arg *arg)
 	i = 1;
 	cmds = arg->cmd_head;
 	pid = fork();
-	while (wait(&pid) != -1)
+	while (wait(NULL) != -1)
 	{
-		while (!pid && cmds)
+		while (cmds)
 		{
 			repipex(arg, *cmds, 1);
 			cmds = cmds->next;

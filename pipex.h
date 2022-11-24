@@ -6,14 +6,13 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 15:55:06 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/23 17:17:09 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/24 16:06:47 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PIPEX_H
 # define PIPEX_H
 
-# include <stdio.h>
 # include <fcntl.h>
 # include <stdlib.h>
 # include <unistd.h>

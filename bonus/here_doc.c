@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/21 21:58:05 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/23 21:56:55 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/24 15:58:56 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,14 +26,15 @@ void	here_doc(t_arg arg, int pipe_num)
 	char	*line;
 	int		fd;
 	int		i;
+	char	*limit;
 
 	i = 0;
+	limit = ft_strjoin(arg.limit, "\n");
 	print_pipe(pipe_num);
 	write(1, &"heredoc> ", 9);
 	line = get_next_line(0);
 	fd = open("here_doc", O_RDWR | O_CREAT | O_TRUNC, 0644);
-	while (ft_strlen(line) != ft_strlen(arg.limit) + 1 && \
-	ft_strncmp(line, arg.limit, ft_strlen(line) - 1))
+	while (ft_strcmp(line, limit))
 	{
 		ft_putstr_fd(line, fd);
 		free(line);
@@ -44,6 +45,6 @@ void	here_doc(t_arg arg, int pipe_num)
 		line = get_next_line(0);
 	}
 	free(line);
-	line = 0;
+	free(limit);
 	close(fd);
 }

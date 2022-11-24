@@ -6,7 +6,7 @@
 /*   By: hyuncpar <hyuncpar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/11 17:57:06 by hyuncpar          #+#    #+#             */
-/*   Updated: 2022/11/23 20:49:01 by hyuncpar         ###   ########.fr       */
+/*   Updated: 2022/11/24 19:53:55 by hyuncpar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,6 @@ char	**get_env_path(char **envp)
 		envp++;
 	path = ft_split(*envp + 5, ':');
 	return (path);
-}
-
-void	free_cmds(char **cmds)
-{
-	int		i;
-
-	i = -1;
-	while (cmds[++i])
-		free(cmds[i]);
-	free(cmds);
 }
 
 char	*insert_slash(char *cmd)
